@@ -14,6 +14,7 @@ function saveProducts(products) {
     const stringifyData = JSON.stringify(products, null, 2);
     fs.writeFileSync(productsFilePath, stringifyData);
 }
+
 // Get all products
 function getAllProducts(req, res) {
     const products = getProducts();
@@ -69,3 +70,11 @@ function deleteProduct(req, res) {
         res.status(404).send('Producto no encontrado');
     }
 }
+
+module.exports = {
+    getAllProducts,
+    getProductById,
+    createProduct,
+    updateProduct,
+    deleteProduct
+};
