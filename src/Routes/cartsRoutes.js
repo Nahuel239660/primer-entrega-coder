@@ -4,7 +4,7 @@ const {
     createCart,
     getCartById,
     addProductToCart
-} = require('./cartsController');
+} = require('../Controllers/cartsController.js');
 
 router.post('/', createCart);
 router.get('/:cid', getCartById);
