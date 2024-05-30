@@ -1,0 +1,90 @@
+/* Reset de estilos predeterminados del navegador */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    background-color: #f4f4f4;
+    color: #333;
+    padding: 20px;
+}
+
+/* Estilos del contenedor principal */
+main {
+    margin-top: 20px;
+}
+
+/* Encabezado */
+header {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 0;
+    text-align: center;
+}
+
+header h1 {
+    margin-bottom: 10px;
+}
+
+header nav ul {
+    list-style: none;
+    padding: 0;
+}
+
+header nav ul li {
+    display: inline;
+    margin: 0 10px;
+}
+
+header nav ul li a {
+    color: white;
+    text-decoration: none;
+}
+
+header nav ul li a:hover {
+    text-decoration: underline;
+}
+
+/* Estilos de la lista de productos */
+ul {
+    list-style: none;
+    padding: 0;
+}
+
+ul li {
+    background: #fff;
+    margin: 10px 0;
+    padding: 10px;
+    border: 1px solid #ddd;
+}
+
+ul li:nth-child(even) {
+    background: #f9f9f9;
+}
+
+/* Pie de página */
+footer {
+    text-align: center;
+    margin-top: 20px;
+    padding: 10px 0;
+    background-color: #333;
+    color: white;
+}
+
+/* Estilos adicionales */
+h2 {
+    margin-bottom: 15px;
+}
+
+.container {
+    max-width: 800px;
+    margin: auto;
+    padding: 20px;
+    background: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}

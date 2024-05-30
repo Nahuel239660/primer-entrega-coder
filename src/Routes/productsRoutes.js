@@ -6,7 +6,7 @@ const {
     createProduct,
     updateProduct,
     deleteProduct
-} = require('../Controllers/productsController'); // Asegúrate de que el nombre del archivo sea correcto
+} = require('../Controllers/productsController');
 
 router.get('/', getAllProducts);
 router.get('/:pid', getProductById);

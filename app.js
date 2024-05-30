@@ -1,7 +1,7 @@
 const express = require('express');
 const { engine } = require('express-handlebars');
 const http = require('http');
-const { Server } = require("socket.io");
+const { Server } = require('socket.io');
 const fs = require('fs');
 const path = require('path');
 
@@ -20,25 +20,46 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/products', productsRouter);
-app.use('/carts', cartsRouter);
+app.use('/api/products', productsRouter);
+app.use('/api/carts', cartsRouter);
 
 app.get('/', (req, res) => {
     const products = getProducts();
     res.render('home', { products });
 });
 
-io.on('connection', (socket) => {
-    console.log('Un cliente se ha conectado');
+app.get('/addProduct', (req, res) => {
+    res.render('addProduct', { title: 'Agregar Producto' });
+});
 
-    socket.on('updateProducts', () => {
-        const products = getProducts();
-        io.emit('productsUpdated', products);
-    });
+app.get('/addCart', (req, res) => {
+    const products = getProducts();
+    res.render('addCart', { title: 'Agregar Carrito', products });
+});
 
-    socket.on('disconnect', () => {
-        console.log('Un cliente se ha desconectado');
-    });
+app.get('/viewCart', (req, res) => {
+    const cart = getCart();
+    res.render('viewCart', { title: 'Ver Carrito', items: cart.items });
+});
+
+app.post('/cart/product/:pid', (req, res) => {
+    const productId = parseInt(req.params.pid);
+    const products = getProducts();
+    const product = products.find(p => p.id === productId);
+    if (!product) {
+        return res.status(404).json({ message: 'Producto no encontrado' });
+    }
+
+    const cart = getCart();
+    const existingProduct = cart.items.find(item => item.id === productId);
+    if (existingProduct) {
+        existingProduct.quantity += 1;
+    } else {
+        cart.items.push({ id: productId, name: product.name, quantity: 1 });
+    }
+
+    saveCart(cart);
+    res.json({ message: 'Producto agregado al carrito', cart });
 });
 
 server.listen(8080, () => {
@@ -52,5 +73,24 @@ function getProducts() {
     } catch (error) {
         console.error('Error al leer los datos de productos:', error);
         return [];
+    }
+}
+
+function getCart() {
+    try {
+        const jsonData = fs.readFileSync(path.join(__dirname, 'data/carrito.json'), 'utf8');
+        return JSON.parse(jsonData);
+    } catch (error) {
+        console.error('Error al leer los datos del carrito:', error);
+        return { id: 1, items: [] };
+    }
+}
+
+function saveCart(cart) {
+    try {
+        const jsonData = JSON.stringify(cart, null, 2);
+        fs.writeFileSync(path.join(__dirname, 'data/carrito.json'), jsonData);
+    } catch (error) {
+        console.error('Error al guardar los datos del carrito:', error);
     }
 }

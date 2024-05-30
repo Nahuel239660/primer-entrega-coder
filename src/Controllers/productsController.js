@@ -7,24 +7,30 @@ const productsFilePath = path.join(__dirname, '../../data/productos.json');
 const productSchema = Joi.object({
     name: Joi.string().required(),
     price: Joi.number().positive().required(),
-    description: Joi.string().optional()
+    description: Joi.string().optional(),
+    code: Joi.string().required(),
+    status: Joi.boolean().default(true),
+    stock: Joi.number().integer().min(0).required(),
+    category: Joi.string().required(),
+    thumbnails: Joi.array().items(Joi.string()).optional()
 });
 
 function getProducts() {
     try {
-        const jsonData = fs.readFileSync(productsFilePath);
+        const jsonData = fs.readFileSync(productsFilePath, 'utf8');
         return JSON.parse(jsonData);
     } catch (error) {
-        throw new Error('Failed to read products data');
+        console.error('Error al leer los datos de productos:', error);
+        return [];
     }
 }
 
 function saveProducts(products) {
     try {
-        const stringifyData = JSON.stringify(products, null, 2);
-        fs.writeFileSync(productsFilePath, stringifyData);
+        const jsonData = JSON.stringify(products, null, 2);
+        fs.writeFileSync(productsFilePath, jsonData);
     } catch (error) {
-        throw new Error('Failed to save products data');
+        console.error('Error al guardar los datos de productos:', error);
     }
 }
 
@@ -42,9 +48,9 @@ function getAllProducts(req, res) {
 
 function getProductById(req, res) {
     try {
-        const { pid } = req.params;
+        const productId = parseInt(req.params.pid);
         const products = getProducts();
-        const product = products.find(p => p.id === parseInt(pid));
+        const product = products.find(p => p.id === productId);
         if (product) {
             res.json(product);
         } else {
@@ -72,14 +78,14 @@ function createProduct(req, res) {
 }
 
 function updateProduct(req, res) {
+    const { error, value } = productSchema.validate(req.body);
+    if (error) {
+        return res.status(400).json({ message: 'Datos inválidos', detail: error.details });
+    }
     try {
-        const { pid } = req.params;
-        const { error, value } = productSchema.validate(req.body);
-        if (error) {
-            return res.status(400).json({ message: 'Datos inválidos', detail: error.details });
-        }
+        const productId = parseInt(req.params.pid);
         const products = getProducts();
-        const index = products.findIndex(p => p.id === parseInt(pid));
+        const index = products.findIndex(p => p.id === productId);
         if (index !== -1) {
             const updatedProduct = { ...products[index], ...value };
             products[index] = updatedProduct;
@@ -95,12 +101,12 @@ function updateProduct(req, res) {
 
 function deleteProduct(req, res) {
     try {
-        const { pid } = req.params;
+        const productId = parseInt(req.params.pid);
         const products = getProducts();
-        const filteredProducts = products.filter(p => p.id !== parseInt(pid));
+        const filteredProducts = products.filter(p => p.id !== productId);
         if (products.length !== filteredProducts.length) {
             saveProducts(filteredProducts);
-            res.send(`Producto con ID ${pid} ha sido eliminado`);
+            res.send(`Producto con ID ${productId} ha sido eliminado`);
         } else {
             res.status(404).send('Producto no encontrado');
         }

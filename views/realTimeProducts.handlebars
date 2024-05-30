@@ -1,33 +1,21 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Productos en Tiempo Real</title>
-    <script src="/socket.io/socket.io.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            var socket = io();
+<h2>Productos (Actualización en Tiempo Real)</h2>
+<ul id="product-list">
+    {{#each products}}
+        <li>{{this.name}} - ${{this.price}}</li>
+    {{/each}}
+</ul>
 
-            socket.on('productsUpdated', function (data) {
-                const productList = document.getElementById('product-list');
-                productList.innerHTML = ''; // Limpiar la lista actual
-                data.forEach(product => {
-                    const li = document.createElement('li');
-                    li.textContent = product.name + ' - $' + product.price;
-                    productList.appendChild(li);
-                });
-            });
+<script>
+    const socket = io();  // Conexión al servidor de Socket.io
 
-            socket.emit('updateProducts'); // Solicitar la lista actualizada de productos al cargar
+    socket.on('productsUpdated', function (products) {
+        const productList = document.getElementById('product-list');
+        productList.innerHTML = '';
+        products.forEach(product => {
+            const productElement = document.createElement('li');
+            productElement.textContent = `${product.name} - $${product.price}`;
+            productList.appendChild(productElement);
         });
-    </script>
-</head>
-<body>
-    <h1>Productos Disponibles (Actualización en Tiempo Real)</h1>
-    <ul id="product-list">
-        {{#each products}}
-            <li>{{this.name}} - ${{this.price}}</li>
-        {{/each}}
-    </ul>
-</body>
-</html>
+    });
+    socket.emit('requestUpdate');
+</script>

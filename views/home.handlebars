@@ -1,15 +1,28 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Home - Lista de Productos</title>
-</head>
-<body>
-    <h1>Productos Disponibles</h1>
-    <ul>
-        {{#each products}}
-            <li>{{this.name}} - ${{this.price}}</li>
-        {{/each}}
-    </ul>
-</body>
-</html>
+<h1>Productos</h1>
+{{#each products}}
+    <div>
+        <h2>{{name}}</h2>
+        <p>Precio: {{price}}</p>
+        <p>Descripción: {{description}}</p>
+        <p>Stock: {{stock}}</p>
+        <button onclick="addToCart({{id}})">Agregar al Carrito</button>
+    </div>
+{{/each}}
+
+<script>
+    function addToCart(productId) {
+        fetch(`/cart/product/${productId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+</script>

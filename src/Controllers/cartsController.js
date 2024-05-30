@@ -1,90 +1,57 @@
 const fs = require('fs');
 const path = require('path');
 
-const cartsFilePath = path.join(__dirname, '../../data/carrito.json');
+const cartFilePath = path.join(__dirname, '../../data/carrito.json');
 
-function getCarts() {
+function getCart() {
     try {
-        const jsonData = fs.readFileSync(cartsFilePath);
+        const jsonData = fs.readFileSync(cartFilePath, 'utf8');
         return JSON.parse(jsonData);
     } catch (error) {
-        throw new Error('Failed to read carts data');
+        console.error('Error al leer los datos del carrito:', error);
+        return { id: 1, items: [] };
     }
 }
 
-function saveCarts(carts) {
+function saveCart(cart) {
     try {
-        const stringifyData = JSON.stringify(carts, null, 2);
-        fs.writeFileSync(cartsFilePath, stringifyData);
+        const jsonData = JSON.stringify(cart, null, 2);
+        fs.writeFileSync(cartFilePath, jsonData);
     } catch (error) {
-        throw new Error('Failed to save carts data');
+        console.error('Error al guardar los datos del carrito:', error);
     }
 }
 
-function createCart(req, res) {
-    try {
-        const newCart = {
-            id: Date.now(),
-            items: [],
-            total: 0
-        };
-        const carts = getCarts();
-        carts.push(newCart);
-        saveCarts(carts);
-        res.status(201).json(newCart);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-}
-
-function getCartById(req, res) {
-    try {
-        const { cid } = req.params;
-        const carts = getCarts();
-        const cart = carts.find(c => c.id === parseInt(cid));
-        if (cart) {
-            res.json(cart);
-        } else {
-            res.status(404).send('Carrito no encontrado');
-        }
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
+function getCartItems(req, res) {
+    const cart = getCart();
+    res.json(cart.items);
 }
 
 function addProductToCart(req, res) {
-    try {
-        const { cid, pid } = req.params;
-        const quantity = parseInt(req.body.quantity) || 1;
-        if (quantity < 1) {
-            return res.status(400).json({ message: 'Cantidad no válida.' });
-        }
-        const carts = getCarts();
-        const products = getProducts();  // Asegúrate de que getProducts esté disponible globalmente o importado
-        const cart = carts.find(c => c.id === parseInt(cid));
-        const product = products.find(p => p.id === parseInt(pid));
+    const productId = parseInt(req.params.pid);
+    const quantity = parseInt(req.body.quantity) || 1;
 
-        if (!cart) {
-            res.status(404).send('Carrito no encontrado');
-        } else if (!product) {
-            res.status(404).send('Producto no encontrado');
-        } else {
-            const itemIndex = cart.items.findIndex(item => item.productId === pid);
-            if (itemIndex > -1) {
-                cart.items[itemIndex].quantity += quantity;
-            } else {
-                cart.items.push({ productId: pid, quantity });
-            }
-            saveCarts(carts);
-            res.json(cart);
-        }
-    } catch (error) {
-        res.status(500).json({ error: error.message });
+    const products = getProducts(); // Asegúrate de importar esta función o definirla
+    const product = products.find(p => p.id === productId);
+
+    if (!product) {
+        return res.status(404).json({ message: 'Producto no encontrado' });
     }
+
+    const cart = getCart();
+    const existingProduct = cart.items.find(item => item.id === productId);
+
+    if (existingProduct) {
+        existingProduct.quantity += quantity;
+    } else {
+        cart.items.push({ id: productId, name: product.name, quantity });
+    }
+
+    saveCart(cart);
+    res.json(cart);
 }
 
 module.exports = {
-    createCart,
-    getCartById,
+    getCartItems,
     addProductToCart
 };
