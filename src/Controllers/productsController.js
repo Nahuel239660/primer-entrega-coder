@@ -1,4 +1,4 @@
-const Product = require('../models/product.js');
+const Product = require('../models/product');
 const Joi = require('joi');
 
 const productSchema = Joi.object({
@@ -57,6 +57,10 @@ async function getProductById(req, res) {
 }
 
 async function createProduct(req, res) {
+    if (typeof req.body.thumbnails === 'string') {
+        req.body.thumbnails = [req.body.thumbnails];
+    }
+
     const { error, value } = productSchema.validate(req.body);
     if (error) {
         return res.status(400).json({ message: 'Datos inválidos', detail: error.details });
@@ -72,6 +76,10 @@ async function createProduct(req, res) {
 }
 
 async function updateProduct(req, res) {
+    if (typeof req.body.thumbnails === 'string') {
+        req.body.thumbnails = [req.body.thumbnails];
+    }
+
     const productId = req.params.pid;
     const { error, value } = productSchema.validate(req.body);
     if (error) {

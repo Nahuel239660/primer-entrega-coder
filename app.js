@@ -6,8 +6,8 @@ const path = require('path');
 const mongoose = require('mongoose');
 require('dotenv').config();
 
-const productsRouter = require('./Routes/productsRoutes.js');
-const cartsRouter = require('./routes/cartsRoutes');
+const productsRouter = require('./src/routes/productsRoutes');
+const cartsRouter = require('./src/routes/cartsRoutes');
 
 const app = express();
 const server = http.createServer(app);

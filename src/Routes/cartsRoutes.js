@@ -7,7 +7,7 @@ const {
     updateCart,
     updateProductQuantity,
     deleteAllProductsFromCart
-} = require('../Controllers/cartsController');
+} = require('../controllers/cartsController');
 
 router.get('/:cid', getCartItems);
 router.post('/:cid/products/:pid', addProductToCart);

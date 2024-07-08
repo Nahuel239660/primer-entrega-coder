@@ -6,7 +6,7 @@ const {
     createProduct,
     updateProduct,
     deleteProduct
-} = require('../Controllers/productsController');
+} = require('../controllers/productsController');
 
 router.get('/', getAllProducts);
 router.get('/:pid', getProductById);
