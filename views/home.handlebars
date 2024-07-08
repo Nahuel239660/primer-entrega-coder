@@ -1,28 +1,44 @@
 <h1>Productos</h1>
-{{#each products}}
-    <div>
+<ul>
+    {{#each products}}
+    <li>
         <h2>{{name}}</h2>
-        <p>Precio: {{price}}</p>
+        <p>Precio: ${{price}}</p>
         <p>Descripción: {{description}}</p>
         <p>Stock: {{stock}}</p>
-        <button onclick="addToCart({{id}})">Agregar al Carrito</button>
-    </div>
-{{/each}}
+        <p>Categoría: {{category}}</p>
+        <button onclick="addToCart('{{_id}}')">Agregar al Carrito</button>
+        <a href="/products/{{_id}}">Ver Detalles</a>
+    </li>
+    {{/each}}
+</ul>
+
+<nav>
+    <ul>
+        {{#if hasPrevPage}}
+        <li><a href="{{prevLink}}">Página Anterior</a></li>
+        {{/if}}
+        {{#if hasNextPage}}
+        <li><a href="{{nextLink}}">Página Siguiente</a></li>
+        {{/if}}
+    </ul>
+</nav>
 
 <script>
-    function addToCart(productId) {
-        fetch(`/cart/product/${productId}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            alert(data.message);
-        })
-        .catch(error => {
-            console.error('Error:', error);
-        });
-    }
+function addToCart(productId) {
+    fetch(`/api/carts/${productId}/products`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ quantity: 1 })
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert('Producto agregado al carrito');
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
 </script>
